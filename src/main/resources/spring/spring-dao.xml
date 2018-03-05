@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 引入jdbc.properties中的数据库连接字符串 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!-- 配置数据源，使用阿里开源的druid连接池 -->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="user">
+        <property name="driverClassName" value="${user.db.driver}"></property>
+        <property name="url" value="${user.db.url}"></property>
+        <property name="username" value="${user.db.username}"></property>
+        <property name="password" value="${user.db.password}"></property>
+    </bean>
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="blog">
+        <property name="driverClassName" value="${blog.db.driver}"></property>
+        <property name="url" value="${blog.db.url}"></property>
+        <property name="username" value="${blog.db.username}"></property>
+        <property name="password" value="${blog.db.password}"></property>
+    </bean>
+
+    <!-- 数据库连接池 -->
+    <bean id="dynamicDataSource" class="com.shuma.oneproject.common.dbutils.DynamicDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry value-ref="user" key="usersDataSource" />
+                <entry value-ref="blog" key="blogDataSource" />
+            </map>
+        </property>
+
+        <!-- 默认使用user的数据源 -->
+        <property name="defaultTargetDataSource" ref="user" />
+    </bean>
+
+    <!-- 配置mybatis工厂类，指定数据源、mybatis配置、数据实体、映射表 -->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+        <property name="dataSource" ref="dynamicDataSource"></property>
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <property name="typeAliasesPackage" value="com.shuma.oneproject.entity"></property>
+        <property name="mapperLocations" value="classpath:mappers/*.xml"></property>
+    </bean>
+
+    <!-- 自动实例化dao -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <property name="basePackage" value="com.shuma.oneproject.dao"></property>
+    </bean>
+
+    <!-- 以下为支持注解事务管理 -->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dynamicDataSource"></property>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <context:component-scan base-package="com.shuma.oneproject.common.dbutils"></context:component-scan>
+
+</beans>

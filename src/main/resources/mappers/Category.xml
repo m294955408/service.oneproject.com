@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shuma.oneproject.dao.CategoryDao">
+
+    <insert id="insert" parameterType="Category" >
+        INSERT INTO `tb_category`(`Name`, `UserName`) VALUES(#{name}, #{userName})
+    </insert>
+
+    <update id="update" parameterType="Category">
+        UPDATE  `tb_category`
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">Name = #{name},</if>
+            <if test="userName != null">UserName = #{userName},</if>
+        </trim>
+        WHERE Id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM `tb_category` WHERE 1 = 1 AND Id = #{id}
+    </delete>
+
+    <select id="select" resultType="Category" parameterType="java.util.Map" >
+        SELECT * FROM `tb_category` WHERE 1 = 1
+        <if test="_parameter.containsKey('userName')">
+            AND UserName = #{userName}
+        </if>
+        ORDER BY Id
+    </select>
+
+    <select id="selectOne" resultType="Category" parameterType="java.util.Map" >
+        SELECT * FROM `tb_category` WHERE 1 = 1
+        <choose>
+            <when test="id != null">
+                AND Id = #{id}
+            </when>
+            <when test="userName != null">
+                AND UserName = #{userName}
+            </when>
+            <when test="name != null">
+                AND Name = #{name}
+            </when>
+        </choose>
+    </select>
+
+</mapper>

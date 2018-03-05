@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shuma.oneproject.dao.MemberShipDao">
+
+    <insert id="insert" parameterType="MemberShip" >
+        INSERT INTO
+          `tb_membership`(`UserId`,`CreateDate`,`ConfirmationToken`,`IsConfirmed`, `LastPasswordFailureDate`, `PasswordFailuresSinceLastSuccess`, `Password`, `PasswordChangedDate`, `PasswordSalt`, `PasswordVerificationToken`, `PasswordVerificationTokenExpirationDate`)
+        VALUES(#{userId},#{createDate},#{confirmationToken},#{isConfirmed},#{lastPasswordFailureDate},#{passwordFailuresSinceLastSuccess},#{password},#{passwordChangedDate},#{passwordSalt},#{passwordVerificationToken},#{passwordVerificationTokenExpirationDate})
+    </insert>
+
+    <update id="update" parameterType="MemberShip">
+        UPDATE  `tb_membership`
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="confirmationToken != null">ConfirmationToken = #{confirmationToken},</if>
+            <if test="isConfirmed != null">IsConfirmed = #{isConfirmed},</if>
+            <if test="lastPasswordFailureDate != null">LastPasswordFailureDate = #{lastPasswordFailureDate},</if>
+            <if test="passwordFailuresSinceLastSuccess">PasswordFailuresSinceLastSuccess = #{passwordFailuresSinceLastSuccess},</if>
+            <if test="password">Password = #{password},</if>
+            <if test="passwordChangedDate">PasswordChangedDate = #{passwordChangedDate},</if>
+            <if test="passwordSalt">PasswordSalt = #{passwordSalt},</if>
+            <if test="passwordVerificationToken">PasswordVerificationToken = #{passwordVerificationToken},</if>
+            <if test="passwordVerificationTokenExpirationDate">PasswordVerificationTokenExpirationDate = #{passwordVerificationTokenExpirationDate},</if>
+        </trim>
+        WHERE UserId = #{userId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM `tb_membership` WHERE 1 = 1 AND UserId = #{userId}
+    </delete>
+
+    <select id="select" resultType="MemberShip" parameterType="java.util.Map" >
+        SELECT * FROM `tb_membership` WHERE 1 = 1
+        ORDER BY Id
+    </select>
+
+    <select id="selectOne" resultType="MemberShip" parameterType="java.util.Map" >
+        SELECT * FROM `tb_membership` WHERE 1 = 1
+        <choose>
+            <when test="userId != null">
+                AND UserId = #{userId}
+            </when>
+            <when test="passwordVerificationToken != null">
+                AND PasswordVerificationToken = #{passwordVerificationToken}
+            </when>
+        </choose>
+    </select>
+
+</mapper>

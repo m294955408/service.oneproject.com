@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shuma.oneproject.dao.UserDao">
+
+    <insert id="insert" parameterType="User" >
+        INSERT INTO `tb_user`(`UserName`,`Phone`,`Email`,`NickName`) VALUES(#{userName}, #{phone}, #{email}, #{nickName})
+    </insert>
+
+    <update id="update" parameterType="User">
+        UPDATE  `tb_user` SET
+            Phone = #{phone},
+            Email = #{email},
+            NickName = #{nickName}
+        WHERE 1=1
+        <choose>
+            <when test="userName != null">
+                AND UserName = #{userName}
+            </when>
+            <otherwise>
+                AND Id = #{id}
+            </otherwise>
+        </choose>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM `tb_user` WHERE 1 = 1
+        <choose>
+            <when test="userName != null">
+                AND UserName = #{userName}
+            </when>
+            <otherwise>
+                AND Id = #{id}
+            </otherwise>
+        </choose>
+    </delete>
+
+    <select id="select" resultType="User" parameterType="java.util.Map" >
+        SELECT * FROM `tb_user` WHERE 1 = 1
+        <if test="_parameter.containsKey('nickName')">
+            AND NickName LIKE CONCAT('%', CONCAT(#{nickName}, '%'))
+        </if>
+        ORDER BY Id
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectOne" resultType="User" parameterType="java.util.Map" >
+        SELECT * FROM `tb_user` WHERE 1 = 1
+        <choose>
+            <when test="userName != null">
+                AND UserName = #{userName}
+            </when>
+            <otherwise>
+                AND Id = #{id}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="count" resultType="int" parameterType="java.util.Map">
+        SELECT COUNT(*) FROM `tb_user` WHERE 1 = 1
+    </select>
+
+</mapper>
